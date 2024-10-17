@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'apicalls',
+    'exam'
 ]
 
 MIDDLEWARE = [
@@ -51,10 +53,13 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'examserver.urls'
 
+TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [TEMPLATES_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -107,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata' #'UTC'
 
 USE_I18N = True
 
@@ -118,8 +123,100 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+APP_LOGS = '/var/log/examserver/applogs'
+API_LOGS = '/var/log/examserver/apilogs'
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(APP_LOGS, 'debug.log'),
+            'formatter': 'verbose'
+        },
+        'logins': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(APP_LOGS, 'access.log'),
+            'formatter': 'verbose'
+        },
+        'error': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(APP_LOGS, 'error.log'),
+            'formatter': 'verbose'
+        },
+        'infos': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(APP_LOGS, 'info.log'),
+            'formatter': 'verbose'
+        },
+        'api_errors': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(API_LOGS, 'api_error.log'),
+            'formatter': 'verbose'
+        },
+        'api_logs': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(API_LOGS, 'api_logs.log'),
+            'formatter': 'verbose'
+        }
+    },
+    'loggers': {
+        'monitoringdebug': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'accesslog': {
+            'handlers': ['logins'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'errorlog': {
+            'handlers': ['error'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'infolog': {
+            'handlers': ['infos'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'api_error': {
+            'handlers': ['api_errors'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+         'api_log': {
+            'handlers': ['api_logs'],
+            'level': 'INFO',
+            'propagate': True,
+        }
+    },
+}
