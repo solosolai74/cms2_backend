@@ -9,3 +9,5 @@ center_rating = (("1","1"),
 
 member_type = (("CDAC","CDAC"),
 ("NON-CDAC","NON-CDAC"))
+
+otp_type = (("USERLOGIN","USERLOGIN"),("MANUALOTP","MANUALOTP"),("PXEOTP","PXEOTP",))
