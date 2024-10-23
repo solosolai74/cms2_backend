@@ -13,7 +13,7 @@ class SessionAdmin(admin.ModelAdmin):
     list_display = ['session_key', '_session_data', 'expire_date']
 
 class EncKeyStoreAdmin(admin.ModelAdmin):
-    list_display = ("examslot", "papertype", "toprocess", "created_at")
+    list_display = ("examslot", "papertype", "toprocess", "record_created_at")
     ordering = ("examslot",)
 
 class UserVisitAdmin(admin.ModelAdmin):

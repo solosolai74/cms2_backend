@@ -11,3 +11,5 @@ member_type = (("CDAC","CDAC"),
 ("NON-CDAC","NON-CDAC"))
 
 otp_type = (("USERLOGIN","USERLOGIN"),("MANUALOTP","MANUALOTP"),("PXEOTP","PXEOTP",))
+
+request_priority = (("LOW","LOW"),("MEDIUM","MEDIUM"),("HIGH","HIGH"))

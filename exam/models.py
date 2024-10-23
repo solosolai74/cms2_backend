@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.contrib.sessions.models import Session
 from django.contrib.auth import user_logged_in, user_logged_out
 from django.dispatch.dispatcher import receiver
-from utils.choices import center_status,center_rating,member_type,otp_type
+from utils.choices import center_status,center_rating,member_type,otp_type,request_priority
 import user_agents
 		
 
@@ -30,8 +30,8 @@ class ExamDetails(models.Model):
 	exam_hash 			= models.CharField(max_length=32, blank=True)
 	record_created_at 	= models.DateTimeField(auto_now_add=True)
 	record_updated_at   = models.DateTimeField(auto_now=True)
-	record_created_by	= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by	= models.ForeignKey(User, blank=True, null=True)
+	record_created_by	= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="ed_userc")
+	record_updated_by	= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="ed_useru")
 	isactive            = models.BooleanField(default=True)
 	remarks 			= models.TextField(max_length=250, blank=True)
 	
@@ -44,8 +44,8 @@ class ExamMode(models.Model):
 	# examcode 			= models.ForeignKey(ExamDetails,blank=True,null=True,on_delete=models.CASCADE,)
 	record_created_at 	= models.DateTimeField(auto_now_add=True)
 	record_updated_at   = models.DateTimeField(auto_now=True)
-	record_created_by	= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by	= models.ForeignKey(User, blank=True, null=True)
+	record_created_by	= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="em_userc")
+	record_updated_by	= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="em_useru")
 	isactive            = models.BooleanField(default=True)
 	remarks 			= models.TextField(max_length=250, blank=True)
 
@@ -60,8 +60,8 @@ class ExamSlot(models.Model):
 	allowdownloadkey		= models.BooleanField(default=False)
 	record_created_at 		= models.DateTimeField(auto_now_add=True)
 	record_updated_at   	= models.DateTimeField(auto_now=True)
-	record_created_by		= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by		= models.ForeignKey(User, blank=True, null=True)
+	record_created_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="es_userc")
+	record_updated_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="es_useru")
 	isactive            	= models.BooleanField(default=True)
 	remarks 				= models.TextField(max_length=250, blank=True)
 
@@ -69,12 +69,12 @@ class ExamSlot(models.Model):
 		return self.slotname
 
 class PaperType(models.Model):
-	papertype				= models.CharField(max_length=10, unique=True,)
+	papertype				= models.CharField(max_length=10)
 	examcode 				= models.ForeignKey(ExamDetails,on_delete=models.CASCADE,blank=True,null=True)
 	record_created_at 		= models.DateTimeField(auto_now_add=True)
 	record_updated_at   	= models.DateTimeField(auto_now=True)
-	record_created_by		= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by		= models.ForeignKey(User, blank=True, null=True)
+	record_created_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="pt_userc")
+	record_updated_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="pt_useru")
 	isactive            	= models.BooleanField(default=True)
 	remarks 				= models.TextField(max_length=250, blank=True)
 
@@ -82,12 +82,12 @@ class PaperType(models.Model):
 		return f"{self.papertype}"
 
 class Region(models.Model):
-	regionname			= models.CharField(max_length=25,unique=True)
+	regionname			= models.CharField(max_length=25)
 	examcode 			= models.ForeignKey(ExamDetails,blank=True,null=True,on_delete=models.CASCADE,)
 	record_created_at 	= models.DateTimeField(auto_now_add=True)
 	record_updated_at   = models.DateTimeField(auto_now=True)
-	record_created_by	= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by	= models.ForeignKey(User, blank=True, null=True)
+	record_created_by	= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="ruserc")
+	record_updated_by	= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="ruseru")
 	isactive            = models.BooleanField(default=True)
 	remarks 			= models.TextField(max_length=250, blank=True)
 
@@ -101,8 +101,8 @@ class State(models.Model):
 	examcode 			= models.ForeignKey(ExamDetails,blank=True,null=True,on_delete=models.CASCADE,)
 	created_at 	        = models.DateTimeField(auto_now_add=True)
 	updated_at          = models.DateTimeField(auto_now=True)
-	created_by			= models.ForeignKey(User, blank=True, null=True)
-	updated_by			= models.ForeignKey(User, blank=True, null=True)
+	created_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="suserc")
+	updated_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="suseru")
 	isactive            = models.BooleanField(default=True)
 	remarks 			= models.TextField(max_length=250, blank=True)
 
@@ -117,10 +117,10 @@ class City(models.Model):
 	examcode 			= models.ForeignKey(ExamDetails,blank=True,null=True,on_delete=models.CASCADE,)
 	record_created_at 	= models.DateTimeField(auto_now_add=True)
 	record_updated_at   = models.DateTimeField(auto_now=True)
-	record_created_by	= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by	= models.ForeignKey(User, blank=True, null=True)
-	isactive            	= models.BooleanField(default=True)
-	remarks 				= models.TextField(max_length=250, blank=True)
+	record_created_by	= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="cuserc")
+	record_updated_by	= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="cuseru")
+	isactive            = models.BooleanField(default=True)
+	remarks 			= models.TextField(max_length=250, blank=True)
 	
 	def __str__(self):
 		return self.cityname
@@ -147,17 +147,17 @@ class ExamCenter(models.Model):
 	center_capacity				= models.PositiveIntegerField()
 	record_created_at 			= models.DateTimeField(auto_now_add=True)
 	record_updated_at   		= models.DateTimeField(auto_now=True)
-	record_created_by			= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by			= models.ForeignKey(User, blank=True, null=True)
+	record_created_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="ec_userc")
+	record_updated_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="ec_useru")
 	isactive            		= models.BooleanField(default=True)
 	remarks 					= models.TextField(max_length=250, blank=True)
 	
 
 	def __str__(self):
-		return f"{self.center_code}-{self.center_name}-{self.exam_code}-{self.exam_mode}"
+		return f"{self.center_code}-{self.center_name}-{self.examcode}-{self.exammode}"
 
 class ExamDevice(models.Model):
-	device_no 					=  models.CharField(max_length=10,)
+	device_no 					= models.CharField(max_length=10,)
 	device_name			 		= models.CharField(max_length=25)
 	macid						= models.CharField(max_length=50,)
 	modelname					= models.CharField(max_length=50,)
@@ -166,13 +166,12 @@ class ExamDevice(models.Model):
 	image_version				= models.CharField(max_length=50,blank=True)
 	is_mapped					= models.BooleanField(default=0)
 	rough_score                 = models.IntegerField(blank=True, null=True)
-	created_at 	        		= models.DateTimeField(auto_now_add=True)
-	author_name 				= models.CharField(max_length=50,blank=True)
+	dev_fingerprint				= models.CharField(max_length=50,blank=True)
 	no_of_interface             = models.IntegerField(blank=True, null=True)
 	record_created_at 			= models.DateTimeField(auto_now_add=True)
 	record_updated_at   		= models.DateTimeField(auto_now=True)
-	record_created_by			= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by			= models.ForeignKey(User, blank=True, null=True)
+	record_created_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="eduserc")
+	record_updated_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="eduseru")
 	isactive            		= models.BooleanField(default=True)
 	remarks 					= models.TextField(max_length=250, blank=True)
 
@@ -181,8 +180,8 @@ class ExamRole(models.Model):
 	roletype					= models.CharField(max_length=25,unique=True,)
 	record_created_at 			= models.DateTimeField(auto_now_add=True)
 	record_updated_at   		= models.DateTimeField(auto_now=True)
-	record_created_by			= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by			= models.ForeignKey(User, blank=True, null=True)
+	record_created_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="eruserc")
+	record_updated_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="eruseru")
 	isactive            		= models.BooleanField(default=True)
 	remarks 					= models.TextField(max_length=250, blank=True)
 
@@ -198,8 +197,8 @@ class ExamMember(models.Model):
 	membertype					= models.CharField(max_length=20,choices=member_type,)
 	record_created_at 			= models.DateTimeField(auto_now_add=True)
 	record_updated_at   		= models.DateTimeField(auto_now=True)
-	record_created_by			= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by			= models.ForeignKey(User, blank=True, null=True)
+	record_created_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="emuserc")
+	record_updated_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="emuseru")
 	isactive            		= models.BooleanField(default=True)
 	remarks 					= models.TextField(max_length=250, blank=True)
 
@@ -213,8 +212,8 @@ class CenterDeviceMapping(models.Model):
 	islive						= models.BooleanField(default=0)
 	record_created_at 			= models.DateTimeField(auto_now_add=True)
 	record_updated_at   		= models.DateTimeField(auto_now=True)
-	record_created_by			= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by			= models.ForeignKey(User, blank=True, null=True)
+	record_created_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="edmuserc")
+	record_updated_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="edmuseru")
 	isactive            		= models.BooleanField(default=True)
 	remarks 					= models.TextField(max_length=250, blank=True)
 
@@ -227,8 +226,8 @@ class CenterSlotMapping(models.Model):
 	total_count					= models.PositiveIntegerField(default=0)
 	record_created_at 			= models.DateTimeField(auto_now_add=True)
 	record_updated_at   		= models.DateTimeField(auto_now=True)
-	record_created_by			= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by			= models.ForeignKey(User, blank=True, null=True)
+	record_created_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="csmuserc")
+	record_updated_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="csmuseru")
 	isactive            		= models.BooleanField(default=True)
 	remarks 					= models.TextField(max_length=250, blank=True)
 
@@ -241,8 +240,8 @@ class CenterCiMapping(models.Model):
 	membername					= models.ForeignKey(ExamMember,on_delete=models.CASCADE,null=True,blank=True)
 	record_created_at 			= models.DateTimeField(auto_now_add=True)
 	record_updated_at   		= models.DateTimeField(auto_now=True)
-	record_created_by			= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by			= models.ForeignKey(User, blank=True, null=True)
+	record_created_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="ccmuserc")
+	record_updated_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="ccmuseru")
 	isactive            		= models.BooleanField(default=True)
 	remarks 					= models.TextField(max_length=250, blank=True)
 
@@ -260,8 +259,8 @@ class ExamScriptUpload(models.Model):
 	upload_hash				= models.CharField(max_length=250, unique=True, blank=True,)
 	record_created_at 		= models.DateTimeField(auto_now_add=True)
 	record_updated_at   	= models.DateTimeField(auto_now=True)
-	record_created_by		= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by		= models.ForeignKey(User, blank=True, null=True)
+	record_created_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="esuuserc")
+	record_updated_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="esuuseru")
 	isactive            	= models.BooleanField(default=True)
 	remarks 				= models.TextField(max_length=250, blank=True)
 
@@ -279,8 +278,8 @@ class QuestionPaperUpload(models.Model):
 	upload_hash				= models.CharField(max_length=250, unique=True, blank=True,)
 	record_created_at 		= models.DateTimeField(auto_now_add=True)
 	record_updated_at   	= models.DateTimeField(auto_now=True)
-	record_created_by		= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by		= models.ForeignKey(User, blank=True, null=True)
+	record_created_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="qpuuserc")
+	record_updated_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="qpuuseru")
 	isactive            	= models.BooleanField(default=True)
 	remarks 				= models.TextField(max_length=250, blank=True)
 
@@ -298,8 +297,8 @@ class DecryptKeyUpload(models.Model):
 	calc_hash		     	= models.CharField(max_length=250, unique=True, blank=True,)
 	record_created_at 		= models.DateTimeField(auto_now_add=True)
 	record_updated_at   	= models.DateTimeField(auto_now=True)
-	record_created_by		= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by		= models.ForeignKey(User, blank=True, null=True)
+	record_created_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="dkuuserc")
+	record_updated_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="dkuuseru")
 	isactive            	= models.BooleanField(default=True)
 	remarks 				= models.TextField(max_length=250, blank=True)
       
@@ -310,7 +309,7 @@ class DecryptKeyUpload(models.Model):
 class ExamServerOTP(models.Model):
 	examcode            	= models.ForeignKey(ExamDetails,on_delete=models.CASCADE,null=True,blank=True)
 	user_center     		= models.ForeignKey(User,on_delete=models.CASCADE)
-	otp_type 				= models.ForeignKey(max_length=25,choices=otp_type)
+	otp_type 				= models.CharField(max_length=25,choices=otp_type)
 	otp 					= models.CharField(max_length=250, unique=True,)
 	otp_api_id				= models.CharField(max_length=100,blank=True, default=None,)
 	contact_number  		= models.CharField(max_length=10,)
@@ -319,8 +318,8 @@ class ExamServerOTP(models.Model):
 	used_at					= models.DateTimeField(null=True, blank=True, default=None)
 	record_created_at 		= models.DateTimeField(auto_now_add=True)
 	record_updated_at   	= models.DateTimeField(auto_now=True)
-	record_created_by		= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by		= models.ForeignKey(User, blank=True, null=True)
+	record_created_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="esouserc")
+	record_updated_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="esouseru")
 	isactive            	= models.BooleanField(default=True)
 	remarks 				= models.TextField(max_length=250, blank=True)
 
@@ -338,15 +337,15 @@ class ExamServerRegistration(models.Model):
 	ciname					= models.CharField(max_length=50,)
 	cicontact				= models.CharField(max_length=10,)
 	macid					= models.CharField(max_length=50,)
-	hdserial				= models.CharField(max_length=50,)
-	servertype				= models.CharField(max_length=50,)
+	hdserial				= models.CharField(max_length=50,blank=True)
+	servertype				= models.CharField(max_length=50,blank=True)
 	no_of_request 			= models.IntegerField()
-	keyidentifier			= models.CharField(max_length=250,)
+	keyidentifier			= models.CharField(max_length=250,blank=True)
 	serverkey 				= models.FileField(upload_to='serverkey/',)
 	record_created_at 		= models.DateTimeField(auto_now_add=True)
 	record_updated_at   	= models.DateTimeField(auto_now=True)
-	record_created_by		= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by		= models.ForeignKey(User, blank=True, null=True)
+	record_created_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="esruserc")
+	record_updated_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="esruseru")
 	isactive            	= models.BooleanField(default=True)
 	remarks 				= models.TextField(max_length=250, blank=True)
 
@@ -360,6 +359,7 @@ class ExamCenterRequest(models.Model):
 	examslot 				= models.ForeignKey(ExamSlot, null=True, blank=True, on_delete=models.CASCADE)
 	papertype 				= models.ForeignKey(PaperType, null=True, blank=True, on_delete=models.CASCADE)
 	request_type			= models.CharField(max_length=250,)
+	request_priority		= models.CharField(max_length=250,choices=request_priority)
 	remote_address			= models.CharField(max_length=50)
 	server_status 			= models.CharField(max_length=250,)
 	client_status 			= models.CharField(max_length=250,)
@@ -369,13 +369,15 @@ class ExamCenterRequest(models.Model):
 	client_acktime			= models.DateTimeField(null=True)
 	record_created_at 		= models.DateTimeField(auto_now_add=True)
 	record_updated_at   	= models.DateTimeField(auto_now=True)
-	record_created_by		= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by		= models.ForeignKey(User, blank=True, null=True)
+	record_created_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="ecruserc")
+	record_updated_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="ecruseru")
 	isactive            	= models.BooleanField(default=True)
 	remarks 				= models.TextField(max_length=250, blank=True)
 
 	def __str__(self):
 		return f"{self.examcode}-{self.centercode.center_name}-{self.request_type}-{self.remarks}"
+
+
 
 class UserProfile(models.Model):
 	examcode            		= models.ForeignKey(ExamDetails,on_delete=models.CASCADE,null=True,blank=True)
@@ -384,8 +386,8 @@ class UserProfile(models.Model):
 	status						= models.BooleanField(default=True)
 	record_created_at 			= models.DateTimeField(auto_now_add=True)
 	record_updated_at   		= models.DateTimeField(auto_now=True)
-	record_created_by			= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by			= models.ForeignKey(User, blank=True, null=True)
+	record_created_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="upuserc")
+	record_updated_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="upuseru")
 	isactive            		= models.BooleanField(default=True)
 	remarks 					= models.TextField(max_length=250, blank=True)
 
@@ -400,8 +402,8 @@ class ExamRegionHead(models.Model):
 	status						= models.BooleanField(default=True)
 	record_created_at 			= models.DateTimeField(auto_now_add=True)
 	record_updated_at   		= models.DateTimeField(auto_now=True)
-	record_created_by			= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by			= models.ForeignKey(User, blank=True, null=True)
+	record_created_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="erhuserc")
+	record_updated_by			= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="erhuseru")
 	isactive            		= models.BooleanField(default=True)
 	remarks 					= models.TextField(max_length=250, blank=True)
 
@@ -419,8 +421,8 @@ class EncKeyStore(models.Model):
 	status 					= models.BooleanField(default=False)
 	record_created_at 		= models.DateTimeField(auto_now_add=True)
 	record_updated_at   	= models.DateTimeField(auto_now=True)
-	record_created_by		= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by		= models.ForeignKey(User, blank=True, null=True)
+	record_created_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="eksuserc")
+	record_updated_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="eksuseru")
 	isactive            	= models.BooleanField(default=True)
 	remarks 				= models.TextField(max_length=250, blank=True)
 	
@@ -440,8 +442,8 @@ class ResponseSheet(models.Model):
 	transferred_time 		=  models.DateTimeField(null=True, blank=True)
 	record_created_at 		= models.DateTimeField(auto_now_add=True)
 	record_updated_at   	= models.DateTimeField(auto_now=True)
-	record_created_by		= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by		= models.ForeignKey(User, blank=True, null=True)
+	record_created_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="rsuserc")
+	record_updated_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="rsuseru")
 	isactive            	= models.BooleanField(default=True)
 	remarks 				= models.TextField(max_length=250, blank=True)
 
@@ -452,13 +454,12 @@ class LabDetail(models.Model):
 	examcode            	= models.ForeignKey(ExamDetails,on_delete=models.CASCADE,null=True,blank=True)
 	center_code 			= models.ForeignKey(ExamCenter, on_delete=models.CASCADE)
 	slotname				= models.ForeignKey(ExamSlot, on_delete=models.CASCADE, blank=True, null=True)
-	labfilename 			= models.CharField(max_length=255)	
-	labzip_file 			= models.FileField(upload_to='lab_details/', max_length=700)
-	hashvalue 				= models.CharField(max_length=255)
+	labname 				= models.CharField(max_length=255)	
+	labcapacity				= models.CharField(max_length=255)
 	record_created_at 		= models.DateTimeField(auto_now_add=True)
 	record_updated_at   	= models.DateTimeField(auto_now=True)
-	record_created_by		= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by		= models.ForeignKey(User, blank=True, null=True)
+	record_created_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="lduserc")
+	record_updated_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="lduseru")
 	isactive            	= models.BooleanField(default=True)
 	remarks 				= models.TextField(max_length=250, blank=True)
     
@@ -471,8 +472,8 @@ class UserSlotMapping(models.Model):
 	mappedslots 			= models.TextField(blank=True)
 	record_created_at 		= models.DateTimeField(auto_now_add=True)
 	record_updated_at   	= models.DateTimeField(auto_now=True)
-	record_created_by		= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by		= models.ForeignKey(User, blank=True, null=True)
+	record_created_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="usmuserc")
+	record_updated_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="usmuseru")
 	isactive            	= models.BooleanField(default=True)
 	remarks 				= models.TextField(max_length=250, blank=True)
 
@@ -484,8 +485,8 @@ class UserSession(models.Model):
 	session 				= models.OneToOneField(Session, on_delete=models.CASCADE)
 	record_created_at 		= models.DateTimeField(auto_now_add=True)
 	record_updated_at   	= models.DateTimeField(auto_now=True)
-	record_created_by		= models.ForeignKey(User, blank=True, null=True)
-	record_updated_by		= models.ForeignKey(User, blank=True, null=True)
+	record_created_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="uususerc")
+	record_updated_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="uususeru")
 	isactive            	= models.BooleanField(default=True)
 	remarks 				= models.TextField(max_length=250, blank=True)	
 
