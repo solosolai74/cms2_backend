@@ -41,7 +41,7 @@ class ExamDetails(models.Model):
 
 class ExamMode(models.Model):
 	exammode			= models.CharField(max_length=25,unique=True)
-	examcode 			= models.ForeignKey(ExamDetails,blank=True,null=True,on_delete=models.CASCADE,)
+	# examcode 			= models.ForeignKey(ExamDetails,blank=True,null=True,on_delete=models.CASCADE,)
 	record_created_at 	= models.DateTimeField(auto_now_add=True)
 	record_updated_at   = models.DateTimeField(auto_now=True)
 	record_created_by	= models.ForeignKey(User, blank=True, null=True)
@@ -96,7 +96,7 @@ class Region(models.Model):
 	
 
 class State(models.Model):
-	statename			= models.CharField(max_length=30,unique=True,)
+	statename			= models.CharField(max_length=30,)
 	examregion			= models.ForeignKey(Region,on_delete=models.CASCADE,blank=True,null=True)
 	examcode 			= models.ForeignKey(ExamDetails,blank=True,null=True,on_delete=models.CASCADE,)
 	created_at 	        = models.DateTimeField(auto_now_add=True)
@@ -134,7 +134,7 @@ class ExamCenter(models.Model):
 	examstate					= models.ForeignKey(State,on_delete=models.CASCADE,blank=True,null=True)
 	examcity					= models.ForeignKey(City,on_delete=models.CASCADE,blank=True,null=True)
 	center_address				= models.TextField()
-	center_landmark				= models.CharField(max_length=50,)
+	center_landmark				= models.CharField(max_length=250,)
 	contact_person_name			= models.CharField(max_length=50,)
 	center_email				= models.EmailField()
 	center_contact 				= models.CharField(max_length=10,)
