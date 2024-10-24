@@ -18,7 +18,7 @@ import user_agents
 class ExamDetails(models.Model):
 	examname			= models.CharField(max_length=20)
 	clientname			= models.CharField(max_length=20)
-	examcode	        = models.CharField(max_length=20)
+	examcode	        = models.CharField(max_length=20,unique=True)
 	no_of_examdays		= models.PositiveIntegerField()
 	no_of_examslot		= models.PositiveIntegerField()
 	no_of_regions		= models.PositiveIntegerField()
@@ -50,10 +50,10 @@ class ExamMode(models.Model):
 	remarks 			= models.TextField(max_length=250, blank=True)
 
 	def __str__(self):
-		return self.regionname
+		return self.exammode
 	
 class ExamSlot(models.Model):
-	slotname				= models.CharField(max_length=10)
+	examslot				= models.CharField(max_length=10)
 	examcode 				= models.ForeignKey(ExamDetails,on_delete=models.CASCADE,blank=True,null=True)
 	download_time			= models.DateTimeField()
 	allowdownloadqp			= models.BooleanField(default=False)
@@ -126,8 +126,8 @@ class City(models.Model):
 		return self.cityname
 
 class ExamCenter(models.Model):
-	center_code					= models.PositiveIntegerField()
-	center_name					= models.TextField()
+	centercode					= models.PositiveIntegerField()
+	centername					= models.TextField()
 	examcode 					= models.ForeignKey(ExamDetails,blank=True,null=True,on_delete=models.CASCADE,)
 	exammode					= models.ForeignKey(ExamMode,on_delete=models.CASCADE,blank=True,null=True)
 	examregion					= models.ForeignKey(Region,on_delete=models.CASCADE,blank=True,null=True)
@@ -154,11 +154,11 @@ class ExamCenter(models.Model):
 	
 
 	def __str__(self):
-		return f"{self.center_code}-{self.center_name}-{self.examcode}-{self.exammode}"
+		return f"{self.centercode}-{self.centername}-{self.examcode}-{self.exammode}"
 
 class ExamDevice(models.Model):
-	device_no 					= models.CharField(max_length=10,)
-	device_name			 		= models.CharField(max_length=25)
+	device_no 					= models.CharField(max_length=10,unique=True)
+	device_name			 		= models.CharField(max_length=25,unique=True)
 	macid						= models.CharField(max_length=50,)
 	modelname					= models.CharField(max_length=50,)
 	manufacturer				= models.CharField(max_length=50)
@@ -207,7 +207,7 @@ class ExamMember(models.Model):
 
 class CenterDeviceMapping(models.Model):
 	examcode            		= models.ForeignKey(ExamDetails,on_delete=models.CASCADE)
-	examcenter 					= models.ForeignKey(ExamCenter,on_delete=models.CASCADE)
+	centercode					= models.ForeignKey(ExamCenter,on_delete=models.CASCADE)
 	examdevice 					= models.ForeignKey(ExamDevice,on_delete=models.CASCADE)
 	islive						= models.BooleanField(default=0)
 	record_created_at 			= models.DateTimeField(auto_now_add=True)
@@ -220,7 +220,7 @@ class CenterDeviceMapping(models.Model):
 
 class CenterSlotMapping(models.Model):
 	examcode            		= models.ForeignKey(ExamDetails,on_delete=models.CASCADE)
-	examcenter 					= models.ForeignKey(ExamCenter,on_delete=models.CASCADE)
+	centercode					= models.ForeignKey(ExamCenter,on_delete=models.CASCADE)
 	examslot 					= models.ForeignKey(ExamSlot,on_delete=models.CASCADE)
 	papertype					= models.ForeignKey(PaperType, on_delete=models.CASCADE)
 	total_count					= models.PositiveIntegerField(default=0)
@@ -232,11 +232,11 @@ class CenterSlotMapping(models.Model):
 	remarks 					= models.TextField(max_length=250, blank=True)
 
 	def __str__(self):
-		return f"{self.exammode}:{self.examcenter}:{self.examslot}:{self.papertype}:{self.total_count}"
+		return f"{self.examcode}:{self.centercode}:{self.examslot}:{self.papertype}:{self.total_count}"
 		
 class CenterCiMapping(models.Model):
 	examcode            		= models.ForeignKey(ExamDetails,on_delete=models.CASCADE,null=True,blank=True)
-	center_code 				= models.ForeignKey(ExamCenter,on_delete=models.CASCADE,null=True,blank=True)
+	centercode	 				= models.ForeignKey(ExamCenter,on_delete=models.CASCADE,null=True,blank=True)
 	membername					= models.ForeignKey(ExamMember,on_delete=models.CASCADE,null=True,blank=True)
 	record_created_at 			= models.DateTimeField(auto_now_add=True)
 	record_updated_at   		= models.DateTimeField(auto_now=True)
@@ -246,7 +246,7 @@ class CenterCiMapping(models.Model):
 	remarks 					= models.TextField(max_length=250, blank=True)
 
 	def __str__(self):
-		return f'{self.center_code.center_name}-{self.membername.membername}'
+		return f'{self.centercode.centername}-{self.membername.membername}'
 
 class ExamScriptUpload(models.Model):
 	examcode            	= models.ForeignKey(ExamDetails,on_delete=models.CASCADE,null=True,blank=True)
@@ -311,11 +311,11 @@ class ExamServerOTP(models.Model):
 	user_center     		= models.ForeignKey(User,on_delete=models.CASCADE)
 	otp_type 				= models.CharField(max_length=25,choices=otp_type)
 	otp 					= models.CharField(max_length=250, unique=True,)
-	otp_api_id				= models.CharField(max_length=100,blank=True, default=None,)
+	otp_api_id				= models.CharField(max_length=100,blank=True,null=True)
 	contact_number  		= models.CharField(max_length=10,)
 	status 					= models.CharField(max_length=10,)
 	expiry					= models.DateTimeField()
-	used_at					= models.DateTimeField(null=True, blank=True, default=None)
+	used_at					= models.DateTimeField(null=True, blank=True,)
 	record_created_at 		= models.DateTimeField(auto_now_add=True)
 	record_updated_at   	= models.DateTimeField(auto_now=True)
 	record_created_by		= models.ForeignKey(User, blank=True, null=True,on_delete=models.CASCADE,related_name="esouserc")
@@ -324,7 +324,7 @@ class ExamServerOTP(models.Model):
 	remarks 				= models.TextField(max_length=250, blank=True)
 
 	def __str__(self):
-		return f'{self.examcode}-{self.center_code}-{self.otp}'
+		return f'{self.examcode}-{self.user_center}-{self.otp}'
 
 
 class ExamServerRegistration(models.Model):
@@ -350,7 +350,7 @@ class ExamServerRegistration(models.Model):
 	remarks 				= models.TextField(max_length=250, blank=True)
 
 	def __str__(self):
-		return self.centercode.center_name
+		return self.centercode.centername
 
 
 class ExamCenterRequest(models.Model):
@@ -375,7 +375,7 @@ class ExamCenterRequest(models.Model):
 	remarks 				= models.TextField(max_length=250, blank=True)
 
 	def __str__(self):
-		return f"{self.examcode}-{self.centercode.center_name}-{self.request_type}-{self.remarks}"
+		return f"{self.examcode}-{self.centercode.centername}-{self.request_type}-{self.remarks}"
 
 
 
@@ -398,7 +398,7 @@ class ExamRegionHead(models.Model):
 	examcode            		= models.ForeignKey(ExamDetails,on_delete=models.CASCADE,null=True,blank=True)
 	username 					= models.ForeignKey(User, on_delete=models.CASCADE,)
 	examregion					= models.ForeignKey(Region, on_delete=models.CASCADE,)
-	member         				= models.ForeignKey(ExamMember, on_delete=models.CASCADE)
+	membername         			= models.ForeignKey(ExamMember, on_delete=models.CASCADE)
 	status						= models.BooleanField(default=True)
 	record_created_at 			= models.DateTimeField(auto_now_add=True)
 	record_updated_at   		= models.DateTimeField(auto_now=True)
@@ -432,7 +432,7 @@ class EncKeyStore(models.Model):
 
 class ResponseSheet(models.Model):
 	examcode            	= models.ForeignKey(ExamDetails,on_delete=models.CASCADE,null=True,blank=True)
-	center_code 			= models.ForeignKey(ExamCenter, on_delete=models.CASCADE)
+	centercode	 			= models.ForeignKey(ExamCenter, on_delete=models.CASCADE)
 	examslot 				= models.ForeignKey(ExamSlot, on_delete=models.CASCADE)
 	papertype				= models.ForeignKey(PaperType, on_delete=models.CASCADE,null=True)
 	response_sheet 			= models.FileField(upload_to='response_sheet/',max_length=700)
@@ -448,12 +448,12 @@ class ResponseSheet(models.Model):
 	remarks 				= models.TextField(max_length=250, blank=True)
 
 	def __str__(self):
-		return "{0}-{1}-{2}-{3}-{4}".format(self.examcode,self.center_code.center_code, self.examslot.slotname,self.papertype.papertype,self.response_sheet)
+		return "{0}-{1}-{2}-{3}-{4}".format(self.examcode,self.centercode.centercode, self.examslot.slotname,self.papertype.papertype,self.response_sheet)
     
 class LabDetail(models.Model):
 	examcode            	= models.ForeignKey(ExamDetails,on_delete=models.CASCADE,null=True,blank=True)
-	center_code 			= models.ForeignKey(ExamCenter, on_delete=models.CASCADE)
-	slotname				= models.ForeignKey(ExamSlot, on_delete=models.CASCADE, blank=True, null=True)
+	centercode	 			= models.ForeignKey(ExamCenter, on_delete=models.CASCADE)
+	examslot				= models.ForeignKey(ExamSlot, on_delete=models.CASCADE, blank=True, null=True)
 	labname 				= models.CharField(max_length=255)	
 	labcapacity				= models.CharField(max_length=255)
 	record_created_at 		= models.DateTimeField(auto_now_add=True)
@@ -464,7 +464,7 @@ class LabDetail(models.Model):
 	remarks 				= models.TextField(max_length=250, blank=True)
     
 	def __str__(self):
-		return "{0}-{1}-{2}".format(self.examcode,self.center_code.center_code,self.zip_file)
+		return "{0}-{1}-{2}".format(self.examcode,self.centercode.centercode,self.slotname)
 
 class UserSlotMapping(models.Model):
 	examcode            	= models.ForeignKey(ExamDetails,on_delete=models.CASCADE,null=True,blank=True)
