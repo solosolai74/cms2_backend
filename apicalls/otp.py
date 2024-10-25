@@ -103,7 +103,7 @@ class ExamOTP:
 class PXEOTPGEN(ObtainAuthToken):
     def post(self,request):
         mobile = request.data['mobile']
-        center_code = request.data['username']
+        center_code = request.data['center_code']
         password = request.data['password']
         reqtime = request.data['reqtime']
         exam_code = request.data['exam_code']
@@ -183,8 +183,8 @@ class CustomAuthToken(ObtainAuthToken):
             otpobj = ExamServerOTP.objects.get(examcode=exam_code,user_center=centercode,otp=otp,status='active')
 
             if datetime.now(timezone.utc) < otpobj.expiry:
-                # otpobj.status = "used"
-                # otpobj.save()
+                otpobj.status = "used"
+                otpobj.save()
                 return True
             else:
                 otpobj.status = "expired"
