@@ -66,7 +66,7 @@ class ExamSlot(models.Model):
 	remarks 				= models.TextField(max_length=250, blank=True)
 
 	def __str__(self):
-		return self.slotname
+		return self.examslot
 
 class PaperType(models.Model):
 	papertype				= models.CharField(max_length=10)

@@ -14,7 +14,7 @@ def validateexamceter(exam,center):
         return resdata
     
     except Exception as e:
-       print("Eception in exam center get object: " + str(e))
+       print("Exeption in exam center get object: " + str(e))
        resdata = {
           'status' : False,
           'message' : 'Exam Center Detils is Not Available',
