@@ -24,6 +24,8 @@ urlpatterns = [
     path('rating-dropdown-list', RatingDropdownView.as_view(), name='rating-dropdown-list'), # rating-dropdown
     path('centerstatus-dropdown-list', CenterStatusDropdownView.as_view(), name='centerstatus-dropdown-list'), # status-dropdown
     path('membertype-dropdown-list', MemberTypeDropdownView.as_view(), name='membertype-dropdown-list'), # status-dropdown
+    path('memberrole-dropdown-list', ExamMemberRoleDropdownView.as_view(), name='memberrole-dropdown-list'), # role-dropdown
+
     
     # Exam Details URL'S
     path('exam-details',ExamDetailView.as_view(), name='exam-details'),

@@ -7,20 +7,19 @@ from django.core.exceptions import ObjectDoesNotExist
 from . models import *                          
 from .serializers import *
 from utils.choices import center_status,center_rating
+object_not_exist = []
 
 # function to get primary key
 def get_pk(model, filter_fields):
     try:
-        print("md",model)
         response = model.objects.filter(**filter_fields).first()
-        print("respone",response)
         if response:
             response_id = response.pk
             return response_id
         else :
             raise ObjectDoesNotExist(f"{filter_fields} Not found")
     except Exception as e:
-        print("Exception in name_id_convertor fun",str(e))
+        # print("Exception in name_id_convertor fun",str(e))
         return False
     
 # Exam Details API's 
@@ -54,11 +53,11 @@ class ExamDetailView(APIView):
                 serliazer = ExamDetailSerializer(data=data)
                 if serliazer.is_valid():
                     serliazer.save()
-                    return Response({"api_status": True, "message": "Data Saved Successfully"})
+                    return Response({"api_status": True, "message": "Exam Detail's Data Saved Successfully"})
                 else:
-                    return Response({"api_status": False, "message": "Invalid Input Format" , "Error":serliazer.errors})
+                    return Response({"api_status": False, "message": "Invalid Input" , "Error":serliazer.errors})
         except Exception as e:
-            print("Exception in e", str(e))
+            # print("Exception in e", str(e))
             return Response({"api_status": False, "message": str(e)})
         
 
@@ -70,7 +69,7 @@ class ExamDetailListView(APIView):
         try:
             exam_details = ExamDetails.objects.all()
             if not exam_details.exists():
-                raise ObjectDoesNotExist("No Data Found")
+                raise ObjectDoesNotExist("Exam Details Data, Not Found")
 
             serializer = ExamDetailSerializer(exam_details, many=True)
             return Response({"api_status": True, "data": serializer.data})
@@ -622,6 +621,20 @@ class CenterStatusDropdownView(APIView):
 
         except Exception as e:
             return Response({"api_status": False, "message": str(e)}) 
+
+
+# Exam Member Role Dropdown API's
+class ExamMemberRoleDropdownView(APIView):
+
+    def post(self,request,*args,**kwargs):
+
+        try:
+            # Query to Serve Data
+            distinct_exam_role = ExamRole.objects.all().values_list('roletype',flat=True).distinct()
+            return Response({"api_status":True,"data":distinct_exam_role})
+        except Exception as e:
+            return Response({"api_status":False,"message":str(e)})
+        
 
 
 # Status Dropdown List
@@ -1236,11 +1249,13 @@ class CenterListView(APIView):
                                                         'centercode', 'centername', 'center_address', 'center_landmark', 'contact_person_name', 'center_email',
                                                         'center_contact', 'center_pincode', 'center_google_mapurl', 'center_latitude', 'center_longitude',
                                                         'center_status', 'center_rating', 'center_capacity', 'record_created_at', 'record_updated_at',
-                                                        'record_created_by', 'record_updated_by', 'isactive', 'remarks',
+                                                        'record_created_by', 'record_updated_by', 'isactive', 'remarks','center_contact_alternate',
                                                         'examcode__examcode', 'exammode__exammode', 'examregion__regionname', 'examstate__statename', 'examcity__cityname')
             
             if not center_view_list.exists():
-                raise ObjectDoesNotExist("No Data Found")
+                # raise ObjectDoesNotExist("No Data Found")
+                return Response({"api_status":True,"data":object_not_exist})
+
 
             data = list(center_view_list)
             return Response({"api_status":True,"data":data})
@@ -1467,7 +1482,7 @@ class ExamDeviceUpdateView(APIView):
             device_no = data.get('device_no')
             try:
                 device = ExamDevice.objects.get(device_no=device_no)
-                serializer = ExamDeviceSerializer(device, data=data, partial=True)
+                serializer = ExamDeviceSerializer(device, data=data)
                 if serializer.is_valid():
                     serializer.save()
                     return Response({"api_status": True, "message": "Data Updated Successfully"})
@@ -1487,7 +1502,7 @@ class ExamDeviceListView(APIView):
         try:
             devices = ExamDevice.objects.all()
             serializer = ExamDeviceSerializer(devices, many=True)
-            return Response({"api_status": True, "devices": serializer.data})
+            return Response({"api_status": True, "data": serializer.data})
         except Exception as e:
             return Response({"api_status": False, "message": str(e)})
         
@@ -1562,11 +1577,13 @@ class ExamRoleUpdateView(APIView):
             except ExamRole.DoesNotExist:
                 return Response({"api_status": False, "message": "Record Not Found"})
 
-            serializer = ExamRoleSerializer(role, data=data, partial=True)
+            serializer = ExamRoleSerializer(role, data=data)
+            print("data:-",data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({"api_status": True, "message": "Data Updated Successfully"})
-            return Response({"api_status": False, "message": "Invalid Input", "Error": serializer.errors})
+            else:
+                return Response({"api_status": False, "message": "Invalid Input", "Error": serializer.errors})
         except Exception as e:
             return Response({"api_status": False, "message": str(e)})
 
@@ -1693,9 +1710,6 @@ class ExamMemberUpdateView(APIView):
                 return Response({"api_status": True, "message": "Data Updated Successfully"})
             else:
                 return Response({"api_status": False, "message": "Invalid Input Format" , "Error":serliazer.errors})
-
-        except ExamMember.DoesNotExist:
-            return Response({"api_status": False, "message": "Record not found"})
         except Exception as e:
             return Response({"api_status": False, "message": str(e)})
 
@@ -1726,8 +1740,11 @@ class ExamMemberDeleteView(APIView):
             member_name = exam_mode.membername
             exam_mode.delete()
             return Response({"api_status": True, "message": f"Region Name {member_name} Deleted Successfully"})
-        except Region.DoesNotExist:
-            return Response({"api_status": False, "message": "Record not found"})
         except Exception as e:
             return Response({"api_status": False, "message": str(e)})
 
+
+# Exam Device Mapping 
+class ExamDeviceMappingView(APIView):
+    def post(self, request, *args, **kwargs):
+        pass
