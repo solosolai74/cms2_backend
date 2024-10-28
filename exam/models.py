@@ -66,7 +66,7 @@ class ExamSlot(models.Model):
 	remarks 				= models.TextField(max_length=250, blank=True)
 
 	def __str__(self):
-		return self.examslot
+		return self.slotname
 
 class PaperType(models.Model):
 	papertype				= models.CharField(max_length=10)
@@ -138,6 +138,7 @@ class ExamCenter(models.Model):
 	contact_person_name			= models.CharField(max_length=50,)
 	center_email				= models.EmailField()
 	center_contact 				= models.CharField(max_length=10,)
+	center_contact_alternate 	= models.CharField(max_length=10,)
 	center_pincode				= models.CharField(max_length=6,)
 	center_google_mapurl		= models.CharField(max_length=250)
 	center_latitude				= models.CharField(max_length=250,)
@@ -159,9 +160,9 @@ class ExamCenter(models.Model):
 class ExamDevice(models.Model):
 	device_no 					= models.CharField(max_length=10,unique=True)
 	device_name			 		= models.CharField(max_length=25,unique=True)
-	macid						= models.CharField(max_length=50,)
-	modelname					= models.CharField(max_length=50,)
-	manufacturer				= models.CharField(max_length=50)
+	macid						= models.CharField(max_length=50, blank=True)
+	modelname					= models.CharField(max_length=50, blank=True)
+	manufacturer				= models.CharField(max_length=50, blank=True)
 	dateof_boarding				= models.DateField(blank=True, null=True)
 	image_version				= models.CharField(max_length=50,blank=True)
 	is_mapped					= models.BooleanField(default=0)
